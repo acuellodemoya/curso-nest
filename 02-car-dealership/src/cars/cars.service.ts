@@ -1,10 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose'
+import { Model } from 'mongoose'
 import { Car } from './interfaces/car.interface'
 import { v4 as uuid } from 'uuid'
 import { CreateCarDto, UpdateCarDto } from './dto';
+import { Car as CarSchema, CarDocument } from './schema/car.schema';
 
 @Injectable()
 export class CarsService {
+
+    constructor(
+        @InjectModel(CarSchema.name) private carModel: Model<CarDocument>
+    ){}
 
     private cars: Car[] = [
         //{
@@ -14,46 +21,28 @@ export class CarsService {
         //}
     ]
 
-    public findAll(){
-        return this.cars
+    public async findAll(){
+        return await this.carModel.find()
     }
 
-    public findOneById(id: string){
-        const car = this.cars.find(car => car.id === id)
-        if(!car) throw new NotFoundException(`Car with id '${id}' not found`)
-        return car
+    public async findOneById(id: string){
+        return await this.carModel.findById(id)
     }
 
-    public create(createCarDto: CreateCarDto){
+    public async create(createCarDto: CreateCarDto): Promise<CarSchema> {
         
-        const newCar: Car = {
-            id: uuid(),
-            ...createCarDto
-            //brand: createCarDto.brand,
-            //model: createCarDto.model
-        }
-        this.cars.push(newCar)
-
-        return newCar
+        const createdCar = new this.carModel(createCarDto)
+        return createdCar.save()
     }
 
-    public update(id: string, updateCarDto: UpdateCarDto){
+    public async update(id: string, updateCarDto: UpdateCarDto){
 
-        let carDB = this.findOneById(id)
-        this.cars = this.cars.map(car => {
-            
-            if(car.id === id){
-                carDB = {
-                    ...carDB,
-                    ...updateCarDto,
-                    id,
-                }
-
-                return carDB
-            }
-            return car
-        })
-        return carDB
+        const updatedCar = await this.carModel.findByIdAndUpdate(
+            id,
+            updateCarDto,
+            {new: true}
+        )
+        return updatedCar
     }
 
     public delete(id: string){

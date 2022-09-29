@@ -1,10 +1,10 @@
-import { IsOptional, IsString, IsUUID } from "class-validator";
+import { IsOptional, IsString, IsMongoId } from "class-validator";
 
 
 export class UpdateCarDto {
 
     @IsString()
-    @IsUUID()
+    @IsMongoId()
     @IsOptional()
     readonly id?: string
 
