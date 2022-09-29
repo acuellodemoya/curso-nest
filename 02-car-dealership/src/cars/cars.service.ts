@@ -45,9 +45,8 @@ export class CarsService {
         return updatedCar
     }
 
-    public delete(id: string){
-        let carDB = this.findOneById(id)
-        this.cars = this.cars.filter(car => car.id !== id)
+    public async delete(id: string){
+        return await this.carModel.findByIdAndDelete(id, {new: true})
     }
 
     fillCarsWithSeedData(cars: Car[]){
