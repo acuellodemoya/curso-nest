@@ -37,18 +37,25 @@ export class CarsService {
 
     public async update(id: string, updateCarDto: UpdateCarDto){
 
-        const updatedCar = await this.carModel.findByIdAndUpdate(
-            id,
-            updateCarDto,
-            {new: true}
-        )
-        return updatedCar
+        try{
+            const updatedCar = await this.carModel.findByIdAndUpdate(
+                id,
+                updateCarDto,
+                {new: true}
+            )
+            return updatedCar
+        }catch(e){
+            return {'error': e.message}
+        }
     }
 
     public async delete(id: string){
-        return await this.carModel.findByIdAndDelete(id, {new: true})
+        try{
+            return await this.carModel.findByIdAndDelete(id, {new: true})
+        }catch(e){
+            return {'error': e.message}
+        }
     }
-
     fillCarsWithSeedData(cars: Car[]){
         this.cars = cars
     }
